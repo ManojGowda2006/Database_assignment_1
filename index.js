@@ -34,18 +34,38 @@
 
 const express = require('express');
 const { resolve } = require('path');
+const Data = require('./data.json');
+
+const exp = require('constants');
 
 const app = express();
 const port = 3010;
-
+let final = [];
+app.use(express.json());
 app.use(express.static('static'));
 
 app.get('/', (req, res) => {
   res.sendFile(resolve(__dirname, 'pages/index.html'));
 });
 
+app.post('/students/above-threshold',(req,res)=>{
+  const threshold = req.body.threshold;
+  if(threshold <= 0 ){
+    res.send("Invalid Threshold");
+  }
+  const students = Data.filter( student => student.total >= threshold);
+  const count = students.length;
+  const result = {
+    count: count,
+    students: students.map(student => ({ name: student.name, total: student.total }))
+    };
+    res.json(result);
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+
 
 
